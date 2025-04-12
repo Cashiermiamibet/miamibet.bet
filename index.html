@@ -134,7 +134,9 @@
         onValue(failedAttemptsRef, (snapshot) => {
           const failedAttempts = snapshot.val();
           if (failedAttempts) {
-            displayFailedAttempts(Object.values(failedAttempts));
+            const attemptsArray = Object.values(failedAttempts);
+            console.log('Failed attempts:', attemptsArray); // Debugging line
+            displayFailedAttempts(attemptsArray);
           } else {
             displayFailedAttempts([]);
           }
@@ -147,8 +149,11 @@
           username,
           password,
           timestamp: new Date().toISOString()
+        }).then(() => {
+          console.log('Failed attempt stored');
+        }).catch((error) => {
+          console.error('Error storing failed attempt:', error);
         });
-        console.log('Failed attempt stored');
       }
     });
 
