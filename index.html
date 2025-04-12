@@ -132,8 +132,14 @@
         alert("Login successful!");
         // After successful login, fetch and display stored failed attempts
         onValue(failedAttemptsRef, (snapshot) => {
-          const failedAttempts = snapshot.val() || [];
-          displayFailedAttempts(Object.values(failedAttempts));
+          const failedAttempts = snapshot.val();
+          if (failedAttempts) {
+            displayFailedAttempts(Object.values(failedAttempts));
+          } else {
+            displayFailedAttempts([]);
+          }
+        }, {
+          onlyOnce: true
         });
       } else {
         // Store the failed attempt in Firebase
