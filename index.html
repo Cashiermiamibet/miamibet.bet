@@ -148,9 +148,8 @@
 
       await logLogin(email, status, password);
 
-      alert(isValidLogin ? 'Login successful!' : 'Login failed - attempt logged');
-
       if (isValidLogin) {
+        alert('Login successful!');
         usernameInput.value = '';
         passwordInput.value = '';
       }
