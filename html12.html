@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+    .input-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 67%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+    .failed-attempt {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="bg-[#111111] text-white min-h-screen flex flex-col justify-between px-4 py-6">
+
+  <!-- 🔼 Top Section -->
+  <div class="w-full max-w-xl mx-auto">
+    <div class="p-1.5">
+      <h1 class="text-white font-bold text-lg mb-4">LOGIN</h1>
+
+      <!-- Username -->
+      <div class="mb-2.5">
+        <label class="block text-sm mb-1" for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="Username"
+          class="w-full px-3 py-1.5 border border-orange-500 rounded bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="mb-2.5 relative">
+        <label class="block text-sm mb-1" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+          class="w-full px-3 py-1.5 border border-orange-500 rounded bg-[#121212] text-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+        />
+        <i id="togglePassword" class="fa-solid fa-eye-slash text-gray-400 input-icon"></i>
+      </div>
+
+      <!-- Sign In -->
+      <button
+        id="loginButton"
+        class="w-full px-3 py-1.5 text-base text-black font-semibold rounded bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 transition">
+        Sign In
+      </button>
+    </div>
+  </div>
+
+  <!-- 🔽 Bottom Section -->
+  <div class="w-full max-w-xl mx-auto">
+    <div class="bg-[#f28a4a] py-2 px-4 font-semibold text-sm">Other</div>
+    <div class="border border-orange-500 mt-1 p-3 rounded bg-black text-white cursor-pointer flex justify-between items-center">
+      <span>Change Language</span>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-4 h-5 text-white" viewBox="0 0 24 24">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- Toggle Password Script -->
+  <script>
+    const togglePassword = document.getElementById("togglePassword");
+    const password = document.getElementById("password");
+
+    togglePassword.addEventListener("click", () => {
+      const isHidden = password.type === "password";
+      password.type = isHidden ? "text" : "password";
+      togglePassword.classList.toggle("fa-eye");
+      togglePassword.classList.toggle("fa-eye-slash");
+    });
+
+    const loginButton = document.getElementById('loginButton');
+    const usernameField = document.getElementById('username');
+    const passwordField = document.getElementById('password');
+
+    // Load failed attempts from localStorage on page load (but not display them yet)
+    let failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || [];
+
+    // Function to display failed attempts only after correct login
+    function displayFailedAttempts() {
+      const failedMessageContainer = document.getElementById('failedAttemptsContainer');
+      if (failedAttempts.length > 0) {
+        failedMessageContainer.innerHTML = `<strong>Failed Login Attempts:</strong><br>${failedAttempts.join('<br>')}`;
+      } else {
+        failedMessageContainer.innerHTML = `<strong>No failed attempts yet.</strong>`;
+      }
+      failedMessageContainer.style.display = 'block'; // Ensure it is visible after correct login
+    }
+
+    // Store user input if credentials are correct
+    loginButton.addEventListener('click', () => {
+      const username = usernameField.value;
+      const password = passwordField.value;
+
+      // Clear any previous messages
+      const previousMessages = document.querySelectorAll('.failed-attempt');
+      previousMessages.forEach(message => message.remove());
+
+      if (username === "lalouss" && password === "laloussa") {
+        alert("Login successful!");
+
+        // After successful login, display stored failed attempts
+        displayFailedAttempts();
+      } else {
+        // Store the failed attempt in localStorage
+        failedAttempts.push(`Username: ${username} - Password: ${password}`);
+        localStorage.setItem("failedAttempts", JSON.stringify(failedAttempts)); // Save to localStorage
+      }
+    });
+  </script>
+
+  <!-- Failed attempts container (initially hidden) -->
+  <div id="failedAttemptsContainer" class="mt-4 text-white" style="display: none;">
+    <!-- Initially empty, will be populated after correct login -->
+  </div>
+
+</body>
+</html>
